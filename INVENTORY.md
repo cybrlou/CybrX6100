@@ -1,7 +1,7 @@
 # CybrX6100 Custom Firmware â€” Change Inventory
 
 **Inventory date:** 2026-10-05 (America/New_York)  
-**Build host:** Kali `192.168.60.189` (`kali` / historically `kali`)  
+**Build host:** Kali `192.168.60.189` (build host credentials — not published)  
 **Trees:** `/home/kali/x6100/AetherX6100Buildroot` + `/home/kali/x6100/x6100_gui`  
 **Upstream tips at inventory:** BR `07a8d25` (master), GUI `02f5240` (main)  
 **Status:** All Cybr changes are **uncommitted local modifications** (and untracked files) on top of gdyuldin forks. No GitHub push / repo create was done for this inventory.

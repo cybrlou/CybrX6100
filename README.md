@@ -58,3 +58,14 @@ Multi-license â€” see [NOTICE](NOTICE).
 - Buildroot overlay, init scripts, genimage/package changes, scripts: **GPL-2.0** ([LICENSE](LICENSE)), matching AetherX6100Buildroot
 - GUI patches / `gui-src/`: **LGPL-2.1-or-later** ([LICENSES/LGPL-2.1.txt](LICENSES/LGPL-2.1.txt)), matching x6100_gui
 - `mcp/`: **MIT** ([mcp/LICENSE](mcp/LICENSE))
+
+
+## Premade image (non-technical)
+
+1. Download **CybrX6100-sdcard-v0.1.0.zip** from [Releases](https://github.com/cybrlou/CybrX6100/releases).
+2. Unzip to get the .img file.
+3. Use [Balena Etcher](https://etcher.balena.io/) (or Raspberry Pi Imager) to write the image to a **spare** microSD card — do not overwrite the card currently in your radio until you have a backup.
+4. Insert the card, power on, connect Wi-Fi (or Ethernet), then open http://<radio-ip>/ in a browser.
+5. **Immediately change** the SSH password (oot / 123) and treat the REST token CYBRX6100 as a lab default — see [SECURITY.md](SECURITY.md).
+
+Full flash notes: [docs/FLASH.md](docs/FLASH.md).

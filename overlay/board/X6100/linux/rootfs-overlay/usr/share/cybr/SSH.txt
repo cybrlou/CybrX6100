@@ -1,0 +1,23 @@
+# SSH_START
+CybrX6100 SSH (OpenSSH)
+=======================
+Default: ON at boot. Toggle: APP page button next to Wi-Fi.
+
+Auth (dev default — CHANGE THIS):
+  user: root
+  pass: 123
+  (Buildroot BR2_TARGET_GENERIC_ROOT_PASSWD)
+
+Change password on the radio:
+  passwd root
+
+Optional pubkey:
+  /root/.ssh/authorized_keys
+
+Preference (DATA partition):
+  /mnt/ssh.enabled
+    1 = on (default if missing)
+    0 = off
+
+GUI stores ssh_enabled in params.db and syncs this file.
+# SSH_END

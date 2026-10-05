@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-only
+# Example: build the CybrX6100 image in an Ubuntu 22.04 (Jammy) container.
+# Derived from the maintainer's Kali helpers (rebuild-cybrx-batch.sh / rebuild-ssh.sh),
+# with lab paths and the inline sudo password removed. Copy, edit WORK, and run.
+#
+# Prereqs: docker; upstream checkouts under $WORK; scripts/apply-overlay.sh already run.
+set -euo pipefail
+WORK=${WORK:-$HOME/x6100}            # contains AetherX6100Buildroot/ and x6100_gui/
+BR=$WORK/AetherX6100Buildroot
+GUI=$WORK/x6100_gui
+JOBS=${JOBS:-$(nproc)}
+HERE="$(cd "$(dirname "$0")" && pwd)"
+
+# 1. Build image (Jammy toolchain + cmake 3.28.3 pin; host Kali gcc was too new)
+docker image inspect x6100-jammy >/dev/null 2>&1 || \
+  docker build -t x6100-jammy -f "$HERE/Dockerfile.jammy" "$HERE"
+
+# 2. First-time config (creates $BR/build)
+[ -d "$BR/build" ] || docker run --rm -u "$(id -u):$(id -g)" -v "$WORK:$WORK" -w "$BR" \
+  x6100-jammy bash ./br_config.sh
+
+# 3. Build
+docker run --rm -u "$(id -u):$(id -g)" \
+  -v "$WORK:$WORK" -w "$BR/build" \
+  -e BR2_DL_DIR="$BR/buildroot/dl" -e HOME=/tmp \
+  -e GUI="$GUI" -e JOBS="$JOBS" \
+  x6100-jammy bash -c '
+    set -e
+    echo "X6100_GUI_OVERRIDE_SRCDIR = $GUI" > local.mk
+    make x6100-webserver-dirclean && make x6100-webserver BR2_JLEVEL=$JOBS
+    make x6100-gui-dirclean && make x6100-gui BR2_JLEVEL=$JOBS
+    make BR2_JLEVEL=$JOBS
+    ls -la images/sdcard.img images/boot.vfat
+    sha256sum images/sdcard.img
+    # sanity checks (from Kali batch helpers)
+    python3 -c "import os; s=os.path.getsize(\"images/boot.vfat\"); assert s==512*1024*1024, s; print(\"BOOT_VFAT_512M_OK\")"
+    test -f target/usr/bin/cybr_wifi_from_file.sh && echo WIFI_APPLY_SCRIPT_OK
+    test -f target/etc/init.d/S46cybr_wifi && echo WIFI_INIT_OK
+    grep -q SSH_START target/etc/init.d/S50sshd && echo SSH_INIT_OK
+    test -f target/usr/share/cybr/SSH.txt && echo SSH_DOC_OK
+    grep -q "#39FF14" target/usr/lib/python3.11/site-packages/x6100_webserver/static/css/cybrtch.css && echo CYBRTCH_CSS_OK
+    strings target/usr/sbin/x6100_gui | grep -q 58080 && echo CYBR_HTTP_IN_GUI_OK
+  '
+echo "Image: $BR/build/images/sdcard.img  (flash to a SPARE SD card only — see docs/FLASH.md)"

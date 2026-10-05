@@ -1,0 +1,18 @@
+#!/bin/sh
+# Apply /mnt/wifi.txt into NetworkManager after DATA is mounted and NM is up.
+# S01create_data mounts /mnt; S45network-manager starts NM.
+
+case "$1" in
+    start)
+        if [ -x /usr/bin/cybr_wifi_from_file.sh ]; then
+            /usr/bin/cybr_wifi_from_file.sh || true
+        fi
+        ;;
+    stop)
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
+        ;;
+esac
+exit 0

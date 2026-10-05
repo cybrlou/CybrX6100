@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# sshd        Starts sshd (CybrX preference-aware).
+#
+# SSH_START
+# Preference: /mnt/ssh.enabled
+#   missing or 1/on/yes/true -> start (default ON)
+#   0/off/no/false           -> skip
+# Auth: root / 123 (BR2_TARGET_GENERIC_ROOT_PASSWD). Change: passwd root
+# SSH_END
+
+[ -f /usr/bin/ssh-keygen ] || exit 0
+
+umask 077
+
+ssh_pref_enabled() {
+    pref=/mnt/ssh.enabled
+    if [ ! -f "$pref" ]; then
+        return 0
+    fi
+    val=$(tr -d '\r\n\t ' < "$pref" | tr 'A-Z' 'a-z')
+    case "$val" in
+        0|off|no|false|disable|disabled) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+start() {
+    if ! ssh_pref_enabled; then
+        printf "Starting sshd: DISABLED (/mnt/ssh.enabled)\n"
+        return 0
+    fi
+    /usr/bin/ssh-keygen -A
+    printf "Starting sshd: "
+    /usr/sbin/sshd
+    touch /var/lock/sshd
+    echo "OK"
+}
+stop() {
+    printf "Stopping sshd: "
+    killall sshd 2>/dev/null || true
+    rm -f /var/lock/sshd
+    echo "OK"
+}
+restart() {
+    stop
+    start
+}
+
+case "$1" in
+  start) start ;;
+  stop) stop ;;
+  restart|reload) restart ;;
+  *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+esac
+exit $?

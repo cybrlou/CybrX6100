@@ -1,0 +1,263 @@
+/* WEBMODERN_START - CybrX Eva modern pack + simple.min overrides */
+:root {
+  --cybr-bg: #0B100E;
+  --cybr-surface: #121816;
+  --cybr-text: #E8ECEA;
+  --cybr-muted: #9AA3A0;
+  --cybr-border: #2A3330;
+  --cybr-accent: #39FF14;
+  --cybr-hover: #2ECC0F;
+  --cybr-radius: 10px;
+  --cybr-radius-sm: 6px;
+  --cybr-space-2: 0.5rem;
+  --cybr-space-3: 0.75rem;
+  --cybr-space-4: 1rem;
+  --cybr-space-5: 1.25rem;
+  --cybr-space-6: 1.5rem;
+  --cybr-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-family: var(--cybr-font);
+  font-size: 15px;
+  line-height: 1.45;
+  max-width: none !important;
+}
+
+body {
+  margin: 0 !important;
+  max-width: none !important;
+  min-height: 100vh;
+  background: var(--cybr-bg) !important;
+  color: var(--cybr-text) !important;
+  grid-template-columns: none !important;
+  display: block !important;
+}
+
+/* Kill simple.css header/nav button look */
+header.site-header,
+header {
+  position: sticky !important;
+  top: 0;
+  z-index: 100;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  background: var(--cybr-surface) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--cybr-border) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+}
+
+header .brand {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.25rem 0.35rem;
+  margin: 0 !important;
+}
+
+header .brand .wordmark,
+header h1 {
+  margin: 0 !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em;
+  color: var(--cybr-text) !important;
+  background: none !important;
+  border: none !important;
+}
+
+header .subtitle { display: none !important; }
+
+header nav.tabs,
+header nav {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.15rem;
+  width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 0.75rem !important;
+  border: none !important;
+  border-top: 1px solid var(--cybr-border) !important;
+  background: var(--cybr-surface) !important;
+  float: none !important;
+}
+
+header nav a {
+  display: inline-block !important;
+  color: var(--cybr-muted) !important;
+  text-decoration: none !important;
+  padding: 0.75rem 0.9rem !important;
+  margin: 0 !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.2 !important;
+}
+
+header nav a:hover {
+  color: var(--cybr-text) !important;
+  background: transparent !important;
+}
+
+header nav a.active,
+header nav a[aria-current="page"] {
+  color: var(--cybr-accent) !important;
+  border-bottom-color: var(--cybr-accent) !important;
+  background: transparent !important;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto !important;
+  padding: var(--cybr-space-5) var(--cybr-space-5) var(--cybr-space-6);
+  background: var(--cybr-bg);
+}
+
+.card,
+main > section,
+.hint-card {
+  background: var(--cybr-surface);
+  border: 1px solid var(--cybr-border);
+  border-radius: var(--cybr-radius);
+  padding: var(--cybr-space-4) var(--cybr-space-5);
+  margin-bottom: var(--cybr-space-4);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--cybr-space-3);
+  margin: var(--cybr-space-4) 0;
+}
+
+.card h2, .card h3, main > section h2, main > section h3 {
+  margin: 0 0 var(--cybr-space-2);
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--cybr-text);
+}
+
+.page-hint, .card p, .hint {
+  margin: 0;
+  color: var(--cybr-muted);
+  font-size: 0.9rem;
+  max-width: 42rem;
+}
+
+.page-hint {
+  background: var(--cybr-surface);
+  border: 1px solid var(--cybr-border);
+  border-radius: var(--cybr-radius);
+  padding: var(--cybr-space-3) var(--cybr-space-4);
+  margin-bottom: var(--cybr-space-4);
+}
+
+.note {
+  margin: var(--cybr-space-4) 0 0;
+  padding: var(--cybr-space-3) var(--cybr-space-4);
+  border-left: 3px solid var(--cybr-accent);
+  background: color-mix(in srgb, var(--cybr-accent) 8%, var(--cybr-surface));
+  border-radius: 0 var(--cybr-radius-sm) var(--cybr-radius-sm) 0;
+  color: var(--cybr-muted);
+  font-size: 0.88rem;
+}
+
+.note strong { color: var(--cybr-text); }
+
+.card a.card-link {
+  color: var(--cybr-accent);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: inline-block;
+  margin-top: var(--cybr-space-3);
+  border: none !important;
+  background: none !important;
+  padding: 0 !important;
+}
+
+.card a.card-link:hover { color: var(--cybr-hover); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--cybr-surface);
+  border: 1px solid var(--cybr-border);
+  border-radius: var(--cybr-radius);
+  overflow: hidden;
+}
+
+th, td {
+  border-color: var(--cybr-border);
+  padding: var(--cybr-space-2) var(--cybr-space-3);
+}
+
+thead th {
+  background: color-mix(in srgb, var(--cybr-accent) 4%, var(--cybr-surface));
+  color: var(--cybr-text);
+  font-weight: 600;
+  text-align: left;
+}
+
+tbody tr:hover {
+  background: color-mix(in srgb, var(--cybr-accent) 6%, transparent);
+}
+
+a { color: var(--cybr-accent); }
+a:hover { color: var(--cybr-hover); }
+
+button,
+input[type="submit"],
+input[type="button"],
+.btn,
+.button {
+  background: transparent !important;
+  color: var(--cybr-accent) !important;
+  border: 1px solid var(--cybr-accent) !important;
+  border-radius: var(--cybr-radius-sm) !important;
+  padding: 0.4rem 0.85rem !important;
+  cursor: pointer;
+  font: inherit;
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  color: var(--cybr-hover) !important;
+  border-color: var(--cybr-hover) !important;
+}
+
+input, select, textarea {
+  background: var(--cybr-bg);
+  color: var(--cybr-text);
+  border: 1px solid var(--cybr-border);
+  border-radius: var(--cybr-radius-sm);
+  padding: 0.35rem 0.55rem;
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cybr-accent);
+  outline-offset: 2px;
+}
+
+footer {
+  background: var(--cybr-surface);
+  border-top: 1px solid var(--cybr-border);
+  color: var(--cybr-muted);
+  padding: var(--cybr-space-4) var(--cybr-space-5);
+  text-align: center;
+  font-size: 0.8rem;
+  max-width: none !important;
+}
+/* WEBMODERN_END */

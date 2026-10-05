@@ -1,0 +1,16 @@
+# never commit device/user data or build output
+wifi.txt
+!examples/wifi.txt.example
+params.db
+*.img
+*.vfat
+*.bak.*
+*.log
+*.out
+*.nohup
+build/
+__pycache__/
+*.pyc
+.venv/
+scripts/rebuild-docker.sh
+scripts/local.mk

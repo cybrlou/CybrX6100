@@ -1,0 +1,2 @@
+# Optional: server.py falls back to stdlib urllib if httpx is absent.
+httpx>=0.27

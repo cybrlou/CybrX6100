@@ -1,0 +1,13 @@
+diff --git a/br2_external/board/X6100/genimage.cfg b/br2_external/board/X6100/genimage.cfg
+index 2810d20..e0b1f2e 100644
+--- a/br2_external/board/X6100/genimage.cfg
++++ b/br2_external/board/X6100/genimage.cfg
+@@ -8,7 +8,7 @@ image boot.vfat {
+ 		extraargs = "-n 'BOOT'"
+ 	}
+ 
+-	size = 32M
++	size = 512M
+ }
+ 
+ 

@@ -1,0 +1,11 @@
+% rebase('base.html', title='File browser')
+<!-- WEBMODERN_START -->
+<p class="page-hint">Browse and download files from the DATA partition.</p>
+<!-- WEBMODERN_END -->
+<i class="si-folder"></i> <a href="..">..</a><br/>
+% for item in dirs:
+<i class="si-folder"></i> <a href="{{item}}/">{{item}}</a><br/>
+% end
+% for item in files:
+<i class="si-file"></i> <a href="{{item}}">{{item}}</a><br/>
+% end

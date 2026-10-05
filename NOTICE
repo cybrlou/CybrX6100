@@ -1,0 +1,36 @@
+CybrX6100
+Copyright (c) 2026 Luis Pena (CybrX / cybrlou)
+
+This repository contains ONLY modifications and additions ("CybrX deltas") to
+third-party projects. It does not relicense any upstream code.
+
+Upstream projects
+-----------------
+* AetherX6100Buildroot — https://github.com/gdyuldin/AetherX6100Buildroot
+  Maintained by gdyuldin; builds on the AetherRadio
+  X6100 Buildroot work. License: GPL-2.0.
+  CybrX deltas based on commit 07a8d25.
+
+* x6100_gui — https://github.com/gdyuldin/x6100_gui
+  Xiegu X6100 LVGL GUI. Copyright (c) 2022-2023 Belousov Oleg aka R1CBU
+  (strijar) and contributors; maintained fork by gdyuldin.
+  License: LGPL-2.1-or-later. CybrX patches based on commit 02f5240.
+
+* Buildroot — https://buildroot.org (GPL-2.0), consumed via the upstream tree.
+
+Licensing of this repository
+----------------------------
+* overlay/, patches/buildroot/, scripts/        GPL-2.0         (LICENSE, LICENSES/GPL-2.0.txt)
+  Files under overlay/ that are modified copies of upstream files
+  (genimage.cfg, S01create_data, sshd_config, x6100_gui.mk,
+  x6100_webserver.mk) remain under their upstream terms.
+* patches/gui/, gui-src/                        LGPL-2.1-or-later (LICENSES/LGPL-2.1.txt)
+* mcp/                                          MIT             (mcp/LICENSE)
+* docs/, examples/, *.md                        Same as the code they describe;
+                                                 examples may be used freely.
+
+OpenSSH, NetworkManager, the x6100 webserver and other packages are built
+from upstream Buildroot sources under their own licenses.
+
+"Xiegu" and "X6100" are trademarks of their respective owners. CybrX6100 is
+not affiliated with or endorsed by Xiegu.

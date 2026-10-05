@@ -1,0 +1,246 @@
+From 8d124cc23725920740029b72da80cbea3decf10b Mon Sep 17 00:00:00 2001
+From: CybrX <cybrx@users.noreply.github.com>
+Date: Mon, 5 Oct 2026 19:28:38 -0400
+Subject: [PATCH 3/3] ssh: add APP-page SSH toggle synced with /mnt/ssh.enabled
+
+p_ssh_enabled (default true); start/stop S50sshd; button beside Wi-Fi on APP page 3.
+---
+ src/CMakeLists.txt         |  2 +-
+ src/buttons.cpp            | 13 +++++++-
+ src/cfg/cfg_api.cpp        |  6 ++++
+ src/cfg/cfg_api.h          |  3 ++
+ src/cfg/settings_manager.h |  4 +++
+ src/main.c                 |  4 +++
+ src/ssh.cpp                | 64 ++++++++++++++++++++++++++++++++++++++
+ src/ssh.h                  | 22 +++++++++++++
+ 8 files changed, 116 insertions(+), 2 deletions(-)
+ create mode 100644 src/ssh.cpp
+ create mode 100644 src/ssh.h
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index b340116..c354d15 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -30,7 +30,7 @@ target_sources(${PROJECT_NAME} PUBLIC
+     textarea_window.c cw_encoder.c buttons.cpp vol.cpp recorder.c
+     voice.cpp cw_tune_ui.c adif.c qso_log.c scheduler.cpp
+     format.c msg_cw_store.c
+-    dialog_wifi.c wifi.cpp controls.cpp usb_devices.cpp
++    dialog_wifi.c wifi.cpp ssh.cpp controls.cpp usb_devices.cpp
+     knobs.cpp lock_manager.c indicators.cpp freq_info.cpp
+ )
+ 
+diff --git a/src/buttons.cpp b/src/buttons.cpp
+index 1524e63..83e15b2 100644
+--- a/src/buttons.cpp
++++ b/src/buttons.cpp
+@@ -12,6 +12,7 @@
+ #include "util.h"
+ #include "format.h"
+ #include "cfg/cfg_api.h"
++#include "ssh.h"
+ #include "cfg/encoder_defaults.h"
+ 
+ #include <stdio.h>
+@@ -324,6 +325,14 @@ static button_data_t btn_callsign = make_action_btn("Callsign", ACTION_APP_CALLS
+ static button_data_t btn_settings = make_app_btn("Settings", ACTION_APP_SETTINGS);
+ 
+ static button_data_t  btn_wifi   = make_app_btn("WiFi", ACTION_APP_WIFI);
++/* SSH_START */
++static button_data_t btn_ssh = {
++    .type     = BTN_TEXT_FN,
++    .label_fn = ssh_label_getter,
++    .press    = ssh_toggle_cb,
++    .subj     = (Subject *)cfg.network.ssh_enabled(),
++};
++/* SSH_END */
+ 
+ /* RTTY */
+ static button_data_t btn_rtty_p1 = {
+@@ -454,7 +463,9 @@ static buttons_page_t page_app_2 = {
+     {&btn_app_p2, &btn_rec, &btn_qth, &btn_callsign, &btn_settings}
+ };
+ static buttons_page_t page_app_3 = {
+-    {&btn_app_p3, &btn_wifi}
++    /* SSH_START: SSH toggle next to Wi-Fi */
++    {&btn_app_p3, &btn_wifi, &btn_ssh}
++    /* SSH_END */
+ };
+ 
+ /* RTTY */
+diff --git a/src/cfg/cfg_api.cpp b/src/cfg/cfg_api.cpp
+index bed143f..5538c61 100644
+--- a/src/cfg/cfg_api.cpp
++++ b/src/cfg/cfg_api.cpp
+@@ -174,6 +174,9 @@ static ParamText *cfg_ft8_cq_modifier(void) { return param_ref<ParamText>(cfg_in
+ static ParamText *cfg_qth(void) { return param_ref<ParamText>(cfg_instance().p_qth); }
+ static ParamText *cfg_callsign(void) { return param_ref<ParamText>(cfg_instance().p_callsign); }
+ static ParamInt *cfg_wifi_enabled(void) { return param_ref<ParamInt>(cfg_instance().p_wifi_enabled); }
++/* SSH_START */
++static ParamInt *cfg_ssh_enabled(void) { return param_ref<ParamInt>(cfg_instance().p_ssh_enabled); }
++/* SSH_END */
+ static ParamInt *cfg_long_gen(void) { return param_ref<ParamInt>(cfg_instance().p_long_gen); }
+ static ParamInt *cfg_long_app(void) { return param_ref<ParamInt>(cfg_instance().p_long_app); }
+ static ParamInt *cfg_long_key(void) { return param_ref<ParamInt>(cfg_instance().p_long_key); }
+@@ -392,6 +395,9 @@ extern "C" const cfg_refs_t cfg = {
+     },
+     .network = {
+         .wifi_enabled = &cfg_wifi_enabled,
++        /* SSH_START */
++        .ssh_enabled = &cfg_ssh_enabled,
++        /* SSH_END */
+     },
+     .keys = {
+         .long_gen = &cfg_long_gen,
+diff --git a/src/cfg/cfg_api.h b/src/cfg/cfg_api.h
+index 9204504..44a8f6d 100644
+--- a/src/cfg/cfg_api.h
++++ b/src/cfg/cfg_api.h
+@@ -239,6 +239,9 @@ typedef struct {
+ 
+ typedef struct {
+     ParamInt *(*wifi_enabled)(void); /* p_wifi_enabled */
++    /* SSH_START */
++    ParamInt *(*ssh_enabled)(void); /* p_ssh_enabled, default on */
++    /* SSH_END */
+ } cfg_network_refs_t;
+ 
+ typedef struct {
+diff --git a/src/cfg/settings_manager.h b/src/cfg/settings_manager.h
+index 14920c3..411874c 100644
+--- a/src/cfg/settings_manager.h
++++ b/src/cfg/settings_manager.h
+@@ -333,6 +333,10 @@ class SettingsManager {
+     // Network
+     Parameter<int32_t> p_wifi_enabled{"wifi_enabled", false, 0, 1,
+         StorageType::GLOBAL, pending_writes_, &global_params_};
++    // SSH_START
++    Parameter<int32_t> p_ssh_enabled{"ssh_enabled", true, 0, 1,
++        StorageType::GLOBAL, pending_writes_, &global_params_};
++    // SSH_END
+ 
+     // Long-press / HMic action bindings
+     Parameter<int32_t> p_long_gen{"long_gen", ACTION_SCREENSHOT, {},
+diff --git a/src/main.c b/src/main.c
+index 61d6ef7..3ec36f1 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -44,6 +44,7 @@
+ #include "qso_log.h"
+ #include "scheduler.h"
+ #include "wifi.h"
++#include "ssh.h"
+ #include "usb_devices.h"
+ 
+ rotary_t  *vol;
+@@ -164,6 +165,9 @@ int main(void) {
+     cw_init();
+     rtty_init();
+     wifi_power_setup();
++    /* SSH_START */
++    ssh_setup();
++    /* SSH_END */
+     display_init();
+     cat_init(&app_ports);
+     cat_lan_init(&app_ports);
+diff --git a/src/ssh.cpp b/src/ssh.cpp
+new file mode 100644
+index 0000000..6c0b9e8
+--- /dev/null
++++ b/src/ssh.cpp
+@@ -0,0 +1,64 @@
++/*
++ * SSH_START
++ * CybrX6100 SSH preference + OpenSSH control.
++ * Persists to params.db (ssh_enabled) and /mnt/ssh.enabled for boot init.
++ * SSH_END
++ */
++#include "ssh.h"
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++
++#include "cfg/cfg_api.h"
++
++extern "C" {
++#include "msg.h"
++}
++
++#define SSH_PREF_PATH "/mnt/ssh.enabled"
++#define SSH_INIT_SCRIPT "/etc/init.d/S50sshd"
++
++static void write_pref_file(bool enabled) {
++    FILE *f = fopen(SSH_PREF_PATH, "w");
++    if (!f) {
++        return;
++    }
++    fputs(enabled ? "1\n" : "0\n", f);
++    fclose(f);
++}
++
++static void apply_service(bool enabled) {
++    if (access(SSH_INIT_SCRIPT, X_OK) != 0) {
++        return;
++    }
++    char cmd[128];
++    snprintf(cmd, sizeof(cmd), "%s %s >/dev/null 2>&1", SSH_INIT_SCRIPT,
++             enabled ? "start" : "stop");
++    system(cmd);
++}
++
++bool ssh_is_enabled(void) {
++    return param_i_get(cfg.network.ssh_enabled()) != 0;
++}
++
++void ssh_setup(void) {
++    bool on = ssh_is_enabled();
++    write_pref_file(on);
++    apply_service(on);
++}
++
++void ssh_toggle_cb(button_data_t *btn_data) {
++    (void)btn_data;
++    bool on = !ssh_is_enabled();
++    param_i_set(cfg.network.ssh_enabled(), on ? 1 : 0);
++    write_pref_file(on);
++    apply_service(on);
++    msg_update_text_fmt("SSH %s", on ? "On" : "Off");
++}
++
++const char *ssh_label_getter(void) {
++    static char buf[24];
++    snprintf(buf, sizeof(buf), "SSH:\n%s", ssh_is_enabled() ? "On" : "Off");
++    return buf;
++}
+diff --git a/src/ssh.h b/src/ssh.h
+new file mode 100644
+index 0000000..933953a
+--- /dev/null
++++ b/src/ssh.h
+@@ -0,0 +1,22 @@
++/*
++ * SSH_START
++ * CybrX6100 SSH preference + service control (APP page toggle).
++ * SSH_END
++ */
++#pragma once
++
++#include <stdbool.h>
++#include "buttons.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++void ssh_setup(void);
++void ssh_toggle_cb(button_data_t *btn_data);
++const char *ssh_label_getter(void);
++bool ssh_is_enabled(void);
++
++#ifdef __cplusplus
++}
++#endif
+-- 
+2.53.0
+

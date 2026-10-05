@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/vnd.microsoft.icon" href="/static/favicon.ico" />
+    <title>{{title}} - CybrX 6100</title>
+    <link href="/static/css/simple.min.css" rel="stylesheet">
+    <link href="/static/css/base.css" rel="stylesheet">
+    <link href="/static/css/siimple-icons.css" rel="stylesheet" />
+    <!-- WEBMODERN_START -->
+    <link href="/static/css/cybrtch.css" rel="stylesheet" />
+    <!-- WEBMODERN_END -->
+    <script src="/static/js/jquery-3.7.1.min.js" type="text/javascript"></script>
+    <script>
+      const mode_map = {
+        0: "LSB",
+        1: "LSB-D",
+        2: "USB",
+        3: "USB-D",
+        4: "CW",
+        5: "CW-R",
+        6: "AM",
+        7: "NFM",
+      };
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">
+        <h1 class="wordmark">CybrX 6100</h1>
+      </div>
+      <nav class="tabs">
+        <a href="/">General</a>
+        <a href="/bands">Bands</a>
+        <a href="/digital_modes">Digital</a>
+        <a href="/files/">Files</a>
+        <a href="/time">Time</a>
+      </nav>
+    </header>
+
+    <main>
+      {{!base}}
+    </main>
+
+    <footer>
+      <p>CybrX 6100 configurator</p>
+    </footer>
+    <script>
+      (function () {
+        var path = window.location.pathname.replace(/\/+$/, "") || "/";
+        document.querySelectorAll("header nav a").forEach(function (a) {
+          var href = a.getAttribute("href").replace(/\/+$/, "") || "/";
+          if (href === path || (href !== "/" && path.indexOf(href) === 0)) {
+            a.classList.add("active");
+            a.setAttribute("aria-current", "page");
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

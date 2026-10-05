@@ -1,0 +1,7 @@
+# Copy to the SD DATA partition as wifi.txt (mounted on the radio at /mnt/wifi.txt).
+# Lines are key=value. Comments start with #.
+# After boot (or Wi-Fi power-on), Cybr applies this via NetworkManager.
+# The PSK is never written to logs.
+
+ssid=YourNetworkName
+psk=YourWifiPassword

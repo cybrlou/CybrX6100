@@ -1,0 +1,5 @@
+# Copy to <AetherX6100Buildroot>/build/local.mk
+# Builds the GUI from a local x6100_gui checkout (gdyuldin/x6100_gui @ 02f5240
+# with patches/gui/*.patch applied via `git am`) instead of fetching
+# X6100_GUI_VERSION from GitHub.
+X6100_GUI_OVERRIDE_SRCDIR = /path/to/x6100_gui

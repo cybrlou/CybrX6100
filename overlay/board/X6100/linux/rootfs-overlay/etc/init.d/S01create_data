@@ -1,0 +1,96 @@
+#!/bin/sh
+
+
+seed_ssh_enabled() {
+# SSH_START
+    if grep -qs ' /mnt ' /proc/mounts 2>/dev/null; then
+        if [ ! -f /mnt/ssh.enabled ]; then
+            echo 1 > /mnt/ssh.enabled 2>/dev/null || true
+            echo "Seeded /mnt/ssh.enabled=1 (SSH on by default)"
+        fi
+    fi
+# SSH_END
+}
+
+seed_wifi_example() {
+    # Prefer mounted DATA at /mnt; soft-fail if unavailable.
+    if ! grep -qs ' /mnt ' /proc/mounts 2>/dev/null; then
+        dataPartition=$(blkid -L DATA 2>/dev/null)
+        if [ -n "$dataPartition" ]; then
+            mount "$dataPartition" /mnt 2>/dev/null || true
+        elif [ -b /dev/mmcblk0p3 ]; then
+            mount /dev/mmcblk0p3 /mnt 2>/dev/null || true
+        fi
+    fi
+    if [ ! -f /mnt/wifi.txt.example ] && [ -f /usr/share/cybr/wifi.txt.example ]; then
+        cp /usr/share/cybr/wifi.txt.example /mnt/wifi.txt.example 2>/dev/null || true
+        echo "Seeded /mnt/wifi.txt.example"
+    fi
+}
+
+start() {
+# DATAFIX_START
+    # Do NOT treat BOOT fat32 as "DATA exists".
+    # Create DATA only if missing: no blkid -L DATA and no usable p3 labeled DATA.
+    dataPartition=$(blkid -L DATA 2>/dev/null)
+    data_exists=0
+    if [ -n "$dataPartition" ]; then
+        data_exists=1
+    elif [ -b /dev/mmcblk0p3 ]; then
+        p3_label=$(blkid -s LABEL -o value /dev/mmcblk0p3 2>/dev/null)
+        if [ "$p3_label" = "DATA" ]; then
+            dataPartition=/dev/mmcblk0p3
+            data_exists=1
+        fi
+    fi
+
+    if [ "$data_exists" -eq 1 ]; then
+        echo "DATA partition already exists"
+        if [ -n "$dataPartition" ]; then
+            mount "$dataPartition" /mnt 2>/dev/null || true
+        else
+            mount /dev/mmcblk0p3 /mnt 2>/dev/null || true
+        fi
+        seed_wifi_example
+        seed_ssh_enabled
+        return
+    fi
+
+    # BOOT may already be fat32; create DATA from free space if present.
+    FREE_INFO=$(parted -sm /dev/mmcblk0 print free | tail -n1 | grep free)
+    retVal=$?
+    if [ $retVal -ne 0 ]; then
+        echo "No free space available for DATA"
+        return
+    fi
+    FREE_ARR=(${FREE_INFO//:/ })
+    echo "Creating DATA partition from free space ${FREE_ARR[1]}-${FREE_ARR[2]}"
+    parted -m -s -a opt /dev/mmcblk0 mkpart primary fat32 ${FREE_ARR[1]} ${FREE_ARR[2]}
+    partprobe /dev/mmcblk0
+    # Wait for new partition node
+    i=0
+    while [ ! -b /dev/mmcblk0p3 ] && [ $i -lt 10 ]; do
+        sleep 1
+        i=$((i + 1))
+    done
+    if [ ! -b /dev/mmcblk0p3 ]; then
+        echo "New DATA partition device /dev/mmcblk0p3 not found"
+        return
+    fi
+    mkfs.vfat -n DATA /dev/mmcblk0p3
+    mount /dev/mmcblk0p3 /mnt
+    seed_wifi_example
+    seed_ssh_enabled
+# DATAFIX_END
+}
+
+
+case "$1" in
+    start)
+        start;;
+    stop)
+        ;;
+    *)
+        echo "Usage: $0 {start}"
+    exit 1
+esac
